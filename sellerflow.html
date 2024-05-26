@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .property-container {
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            text-align: center;
+        }
+
+        .buttons-container {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            right: 20px;
+        }
+
+        .button {
+            padding: 15px;
+            width: 70px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+
+        h1 {
+            background-color: #252525;
+            padding: 10px;
+            margin: 0;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        h3 {
+            background-color: #252525;
+            padding: 10px;
+            margin: 0;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            text-align: left;
+            margin-left: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            list-style: none;
+        }
+
+        .welcome-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #4caf50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-input {
+            width: 100%;
+            margin: 5px 0 20px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            border-radius: 4px;
+            padding: 20px;
+        }
+
+        .modal-buttons-container {
+            text-align: center;
+        }
+
+        .modal-buttons-container button {
+            padding: 10px 15px;
+            margin-top: 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 50px;
+        }
+
+        .modal-buttons-container button:hover {
+            opacity: 0.8;
+        }
+
+        .button-newprop {
+            background-color: #2196F3;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            width: 90px;
+            position: absolute;
+            top: 70px;
+            right: 0;
+        }
+
+        .button-cancel {
+            background-color: #FF5733;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            width: 90px;
+        }
+
+        .modal-buttons-container {
+            text-align: center;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="welcome-message" id="welcomeMessage">Welcome!</div>
+    <h1>Rentify</h1>
+    <h3>renting made simple</h3>
+    <h2>Properties Available:</h2>
+    <div class="modal-buttons-container">
+        <button class="button button-newprop" onclick="newproperty()">Add new property</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDEulY4X3aEkRfJpp67HkxMN7ASFlwzvdg",
+            authDomain: "add-property-1e895.firebaseapp.com",
+            projectId: "add-property-1e895",
+            storageBucket: "add-property-1e895.appspot.com",
+            messagingSenderId: "25423668833",
+            appId: "1:25423668833:web:4e58947e867f15bb3d6c20",
+            databaseURL: "https://add-property-1e895-default-rtdb.firebaseio.com/"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function showWelcomeMessage() {
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            welcomeMessage.style.display = 'block';
+
+            setTimeout(() => {
+                welcomeMessage.style.display = 'none';
+            }, 1000);
+        }
+
+        window.addEventListener('load', showWelcomeMessage);
+
+        const propertiesRef = ref(db, 'Propset');
+
+        onValue(propertiesRef, (snapshot) => {
+            const data = snapshot.val();
+            const propertiesContainer = document.createElement('div');
+            propertiesContainer.id = 'propertiesContainer';
+
+            if (!data) {
+                const noPropertiesMessage = document.createElement('p');
+                noPropertiesMessage.innerText = 'No Properties available.';
+                noPropertiesMessage.style.textAlign = 'center';
+                noPropertiesMessage.style.fontFamily = 'Arial, sans-serif';
+                noPropertiesMessage.style.fontSize = '24px';
+                noPropertiesMessage.style.color = '#333';
+                document.body.appendChild(noPropertiesMessage);
+            } else {
+                Object.keys(data).forEach((key) => {
+                    const property = data[key];
+
+                    const propertyContainer = document.createElement('div');
+                    propertyContainer.classList.add('property-container');
+
+                    const propertyIdElement = document.createElement('p');
+                    propertyIdElement.innerText = `Property ID: ${property.propertyId}`;
+
+                    const nameElement = document.createElement('p');
+                    nameElement.innerText = `Name: ${property.name}`;
+
+                    const locationElement = document.createElement('p');
+                    locationElement.innerText = `Location: ${property.location}`;
+
+                    const priceElement = document.createElement('p');
+                    priceElement.innerText = `Price: ${property.price}`;
+
+                    const descriptionElement = document.createElement('p');
+                    descriptionElement.innerText = `Description: ${property.description}`;
+
+                    const buttonsContainer = document.createElement('div');
+                    buttonsContainer.classList.add('buttons-container');
+
+                    propertyContainer.appendChild(propertyIdElement);
+                    propertyContainer.appendChild(nameElement);
+                    propertyContainer.appendChild(locationElement);
+                    propertyContainer.appendChild(priceElement);
+                    propertyContainer.appendChild(descriptionElement);
+                    propertyContainer.appendChild(buttonsContainer);
+
+                    propertiesContainer.appendChild(propertyContainer);
+                });
+                document.body.appendChild(propertiesContainer);
+            }
+        }, (error) => {
+            console.error('Error fetching properties:', error);
+        });
+
+        function deletePropertyData(propertyId) {
+            const propertyRef = ref(db, `Propset/${propertyId}`);
+
+            remove(propertyRef)
+                .then(() => {
+                    console.log('Property data deleted successfully');
+                })
+                .catch(error => {
+                    console.error('Error deleting property data:', error);
+                });
+        }
+    </script>
+    <script>
+        function newproperty() {
+            window.location.href = 'newprop.html';
+        }
+    </script>
+</body>
+
+</html>
